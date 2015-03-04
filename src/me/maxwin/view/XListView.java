@@ -41,6 +41,7 @@ public class XListView extends ListView implements OnScrollListener {
 	private int mHeaderViewHeight; // header view's height
 	private boolean mEnablePullRefresh = true;
 	private boolean mPullRefreshing = false; // is refreashing.
+	private boolean mEnableAutoLoad = false; // is auto load more data
 
 	// -- footer view
 	private XListViewFooter mFooterView;
@@ -132,6 +133,15 @@ public class XListView extends ListView implements OnScrollListener {
 		} else {
 			mHeaderViewContent.setVisibility(View.VISIBLE);
 		}
+	}
+	
+	/**
+	 * enable or disable auto load more feature.
+	 * 
+	 * @param enable
+	 */
+	public void setAutoLoadEnable(boolean enable){
+		mEnableAutoLoad = enable;
 	}
 
 	/**
@@ -262,10 +272,32 @@ public class XListView extends ListView implements OnScrollListener {
 	private void startLoadMore() {
 		mPullLoading = true;
 		mFooterView.setState(XListViewFooter.STATE_LOADING);
-		if (mListViewListener != null) {
+		if (mEnablePullLoad && null != mListViewListener) {
 			mListViewListener.onLoadMore();
 		}
 	}
+	
+	/**
+     * Auto call back refresh.
+     */
+    public void autoRefresh() {
+    	mHeaderView.setVisiableHeight(mHeaderViewHeight);
+
+        if (mEnablePullRefresh && !mPullRefreshing) {
+            // update the arrow image not refreshing
+            if (mHeaderView.getVisiableHeight() > mHeaderViewHeight) {
+            	mHeaderView.setState(XListViewHeader.STATE_READY);
+            } else {
+            	mHeaderView.setState(XListViewHeader.STATE_NORMAL);
+            }
+        }
+
+        mPullRefreshing = true;
+        mHeaderView.setState(XListViewHeader.STATE_REFRESHING);
+        if(mEnablePullRefresh && null != mListViewListener){
+    		mListViewListener.onRefresh();
+    	}
+    }
 
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
@@ -302,9 +334,9 @@ public class XListView extends ListView implements OnScrollListener {
 						&& mHeaderView.getVisiableHeight() > mHeaderViewHeight) {
 					mPullRefreshing = true;
 					mHeaderView.setState(XListViewHeader.STATE_REFRESHING);
-					if (mListViewListener != null) {
-						mListViewListener.onRefresh();
-					}
+					if(mEnablePullRefresh && null != mListViewListener){
+			    		mListViewListener.onRefresh();
+			    	}
 				}
 				resetHeaderHeight();
 			} else if (getLastVisiblePosition() == mTotalItemCount - 1) {
@@ -344,6 +376,13 @@ public class XListView extends ListView implements OnScrollListener {
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
 		if (mScrollListener != null) {
 			mScrollListener.onScrollStateChanged(view, scrollState);
+		}
+		if (mEnableAutoLoad) {
+			if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
+				if (mEnableAutoLoad && getLastVisiblePosition() == getCount() - 1) {
+					startLoadMore();
+				}
+			}
 		}
 	}
 

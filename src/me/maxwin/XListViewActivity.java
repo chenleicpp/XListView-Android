@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 public class XListViewActivity extends Activity implements IXListViewListener {
 	private XListView mListView;
@@ -28,6 +29,7 @@ public class XListViewActivity extends Activity implements IXListViewListener {
 		mListView.setAdapter(mAdapter);
 //		mListView.setPullLoadEnable(false);
 //		mListView.setPullRefreshEnable(false);
+		mListView.setAutoLoadEnable(true);
 		mListView.setXListViewListener(this);
 		mHandler = new Handler();
 	}
@@ -72,4 +74,11 @@ public class XListViewActivity extends Activity implements IXListViewListener {
 		}, 2000);
 	}
 
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+	    super.onWindowFocusChanged(hasFocus);
+	    if (hasFocus) {
+	        mListView.autoRefresh();
+	    }
+	}
 }
