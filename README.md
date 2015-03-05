@@ -1,7 +1,7 @@
 xListView改进版
 ===========
 
-### fork Maxwin的XListView，增加了一下特性: ###
+### 增加了以下特性: ###
     1.修改手指按在屏幕上listView有抖动（源码中未merge的pull request）
     2.修复快速下拉无法回弹，或者UI线程繁忙的时候无法下拉刷新BUG（源码中未merge的pull request）
     3.增加自动刷新以及滚动到底部自动加载功能
